@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +13,12 @@ namespace TarefasBackEnd
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; set; }
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
@@ -34,9 +41,12 @@ namespace TarefasBackEnd
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
-            });            
+            });
 
-            services.AddDbContext<DataContext>(options => options.UseInMemoryDatabase("DBTarefas"));
+            #region [services.AddDbContext<DataContext>(options => options.UseInMemoryDatabase("DBTarefas"));]
+            #endregion
+
+            services.AddDbContext<DataContext>(options => options.UseNpgsql(Configuration.GetConnectionString("Heroku")));
 
             services.AddTransient<ITarefaRepository, TarefaRepository>();
             services.AddTransient<IUsuarioRepository, UsuarioRepository>();
